@@ -16,10 +16,11 @@ from fidelityAPI import *
 from schwabAPI import *
 from tradierAPI import *
 from tastyAPI import *
+from chaseAPI import *
 
 supported_brokerages = ["all", "ally", "fidelity", 
                         "robinhood", "rh", "schwab", 
-                        "tradier", "tasty", "tastytrade"]
+                        "tradier", "tasty", "tastytrade","chase"]
 
 # Initialize .env file
 load_dotenv()
@@ -117,7 +118,10 @@ async def place_order(wanted_action, wanted_amount, wanted_stock, single_broker,
             # Tradier
             await tradier_transaction(tradier if AO is None else AO, wanted_action, wanted_stock, wanted_amount, wanted_price, wanted_time, DRY, ctx)
             # Tastytrade
-            await tastytrade_transaction(tastytrade if AO is None else AO, wanted_action, wanted_stock, wanted_amount, wanted_price, wanted_time, DRY, ctx) 
+            await tastytrade_transaction(tastytrade if AO is None else AO, wanted_action, wanted_stock, wanted_amount, wanted_price, wanted_time, DRY, ctx)
+            # Chase
+            await chase_transaction(tradier if AO is None else AO, wanted_action, wanted_stock, wanted_amount, wanted_price, wanted_time, DRY, ctx)
+
         elif single_broker == "ally":
             # Ally
             await ally_transaction(ally_account if AO is None else AO, wanted_action, wanted_stock, wanted_amount, wanted_price, wanted_time, DRY, ctx)
@@ -139,6 +143,10 @@ async def place_order(wanted_action, wanted_amount, wanted_stock, single_broker,
         elif single_broker in ('tastytrade', 'tasty'):
             # Tastytrade
             await tastytrade_transaction(tastytrade if AO is None else AO, wanted_action, wanted_stock, wanted_amount, wanted_price, wanted_time, DRY, ctx)
+        elif single_broker == "chase":
+            # Chase
+            await chase_transaction(tastytrade if AO is None else AO, wanted_action, wanted_stock, wanted_amount,
+                                         wanted_price, wanted_time, DRY, ctx)
         else:
             # Invalid broker
             print("Error: Invalid broker")
@@ -183,6 +191,8 @@ if __name__ == "__main__":
     print()
     tastytrade = tastytrade_init()
     print()
+    chase_account = chase_init(DOCKER=True if docker_mode else False)
+    print()
 
     print("Waiting for Discord commands...")
     print()
@@ -217,7 +227,7 @@ if __name__ == "__main__":
         await ctx.send('!ping')
         await ctx.send('!help')
         await ctx.send('!holdings [all|ally|robinhood/rh|schwab|tradier]')
-        await ctx.send('!rsa [buy|sell] [amount] [stock] [all|ally|robinhood/rh|schwab|tradier] [DRY/true/false]')
+        await ctx.send('!rsa [buy|sell] [amount] [stock] [all|ally|robinhood/rh|schwab|tradier|chase] [DRY/true/false]')
         await ctx.send('!restart')
         
     # Main RSA command
